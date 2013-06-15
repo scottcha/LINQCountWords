@@ -10,7 +10,7 @@ namespace CountWordsInString
         {
             var words = s.Split(' ');
 
-            var wordCounts = words.Select(x => x).GroupBy(x => x).Select(x => new { Name = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);
+            var wordCounts = words.GroupBy(x => x).Select(x => new { Name = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);
             
             var countedWords = wordCounts.Select(x => x.Name).ToList();
 

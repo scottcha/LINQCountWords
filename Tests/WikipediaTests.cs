@@ -26,7 +26,16 @@ namespace Tests
         [TestMethod]
         public void TestAllToCsv()
         {
-            var fs = new FileStream("wikipediaTestValues.csv", FileMode.Truncate);
+            FileStream fs;
+            const string fileName = "wikipediaTestValues.csv";
+            try
+            {
+                fs = new FileStream(fileName, FileMode.Truncate);
+            }
+            catch (FileNotFoundException e)
+            {
+                fs = new FileStream(fileName, FileMode.Create);
+            }
             var streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine("length, linq, dictionary, dictionaryNoLinq");
             //generate values for each
