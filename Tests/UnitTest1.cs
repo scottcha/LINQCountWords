@@ -27,9 +27,14 @@ namespace Tests
         [TestMethod]
         public void BasicTestLinq()
         {
-            
-            
             var results = CountWordsInString.CountWordsInString.CountWordsLinq(_s1);
+            Assert.AreEqual(results.Count, 10, "Expected 4 have: " + results.Count);
+        }
+
+        [TestMethod]
+        public void BasicTestLinqTake()
+        {
+            var results = CountWordsInString.CountWordsInString.CountWordsLinqTake(_s1);
             Assert.AreEqual(results.Count, 10, "Expected 4 have: " + results.Count);
         }
 
@@ -39,6 +44,15 @@ namespace Tests
             var results = CountWordsInString.CountWordsInString.CountWordsLinq(_longString);
             
             
+            Assert.AreEqual(results.Count, 10, "Expected 10 have: " + results.Count);
+        }
+
+        [TestMethod]
+        public void LongStringTestLinqTake()
+        {
+            var results = CountWordsInString.CountWordsInString.CountWordsLinqTake(_longString);
+
+
             Assert.AreEqual(results.Count, 10, "Expected 10 have: " + results.Count);
         }
 

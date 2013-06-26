@@ -20,6 +20,19 @@ namespace CountWordsInString
         }
 
         /// <summary>
+        /// Returns top 10 most frequently occuring words (naive definition of word) which occur in a string using LINQ
+        /// </summary>
+        /// <param name="s">string to parse</param>
+        /// <returns>Top ten most frequently occuring words</returns>
+        public static List<String> CountWordsLinqTake(String s)
+        {
+            var words = s.Split(' ');
+            var wordCounts = words.GroupBy(x => x).Select(x => new { Name = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);
+            var countedWords = wordCounts.Select(x => x.Name).Take(10).ToList();
+            return ExtractTopTen(countedWords);
+        }
+
+        /// <summary>
         /// Returns top 10 most frequently occuring words (naive definition of word) which occur in a string using dictionary to count the words and LINQ to sort them
         /// </summary>
         /// <param name="s1">string to parse</param>

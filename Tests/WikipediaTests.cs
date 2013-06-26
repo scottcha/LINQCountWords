@@ -10,7 +10,7 @@ namespace Tests
     [TestClass]
     public class WikipediaTests
     {
-        private const int NumValues = 10;
+        private const int NumValues = 1000;
        
 
         [TestMethod]
