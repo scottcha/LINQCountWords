@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CountWordsInString
 {
@@ -14,23 +17,130 @@ namespace CountWordsInString
         public static List<String> CountWordsLinq(String s)
         {
             var words = s.Split(' ');
+          
             var wordCounts = words.GroupBy(x => x).Select(x => new { Name = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);  
-            var countedWords = wordCounts.Select(x => x.Name).ToList();
+            var countedWords = wordCounts.Select(x => x.Name).Take(10).ToList();
+            return ExtractTopTen(countedWords);
+        }
+
+        /// <summary>
+        /// Returns top 10 most frequently occuring words (naive definition of word) which occur in a string using LINQ as lookup instead of list
+        /// </summary>
+        /// <param name="s">string to parse</param>
+        /// <returns>Top ten most frequently occuring words</returns>
+        public static List<String> CountWordsLinqLookup(String s)
+        {
+            var words = s.Split(' ');
+            var wordCounts = words.ToLookup(x => x).Select(x => new { Name = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);
+            var countedWords = wordCounts.Select(x => x.Name).Take(10);
             return ExtractTopTen(countedWords);
         }
 
         /// <summary>
         /// Returns top 10 most frequently occuring words (naive definition of word) which occur in a string using LINQ
+        /// Force evaluation of every LINQ command by using ToList; this is only for performance analysis and should not be used
+        /// in production code
         /// </summary>
         /// <param name="s">string to parse</param>
         /// <returns>Top ten most frequently occuring words</returns>
-        public static List<String> CountWordsLinqTake(String s)
+        public static List<String> CountWordsLinqForceEvaluate(String s)
         {
+            FileStream fs;
+            const string fileName = "forceEvaluateValues.txt";
+            try
+            {
+                fs = new FileStream(fileName, FileMode.Truncate);
+            }
+            catch (FileNotFoundException)
+            {
+                fs = new FileStream(fileName, FileMode.Create);
+            }
+            var streamWriter = new StreamWriter(fs);
+            
             var words = s.Split(' ');
-            var wordCounts = words.GroupBy(x => x).Select(x => new { Name = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);
-            var countedWords = wordCounts.Select(x => x.Name).Take(10).ToList();
+            var sw = Stopwatch.StartNew();
+            var op1 = words.GroupBy(x => x).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("GroupBy: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var op2 = op1.Select(x => new { Name = x.Key, Count = x.Count() }).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("Select Key & value: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var op3 = op2.OrderByDescending(x => x.Count).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("OrderByDescending: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var op4 = op3.Select(x => x.Name).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("Select Name: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var countedWords = op4.Take(10).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("Take 10: " + sw.Elapsed.TotalMilliseconds);
+            streamWriter.Close();
+            fs.Close();
             return ExtractTopTen(countedWords);
         }
+
+        /// <summary>
+        /// Returns top 10 most frequently occuring words (naive definition of word) which occur in a string using LINQ
+        /// Force evaluation of every LINQ command by using ToList; this is only for performance analysis and should not be used
+        /// in production code
+        /// </summary>
+        /// <param name="s">string to parse</param>
+        /// <returns>Top ten most frequently occuring words</returns>
+        public static List<String> CountWordsLinqLookupForceEvaluate(String s)
+        {
+            FileStream fs;
+            const string fileName = "forceEvaluateLinqLookupValues.txt";
+            try
+            {
+                fs = new FileStream(fileName, FileMode.Truncate);
+            }
+            catch (FileNotFoundException)
+            {
+                fs = new FileStream(fileName, FileMode.Create);
+            }
+            var streamWriter = new StreamWriter(fs);
+
+            var words = s.Split(' ');
+            var sw = Stopwatch.StartNew();
+            var op1 = words.ToLookup(x => x);
+            sw.Stop();
+            streamWriter.WriteLine("GroupBy: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var op2 = op1.Select(x => new { Name = x.Key, Count = x.Count() }).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("Select Key & value: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var op3 = op2.OrderByDescending(x => x.Count).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("OrderByDescending: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var op4 = op3.Select(x => x.Name).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("Select Name: " + sw.Elapsed.TotalMilliseconds);
+            sw.Reset();
+            sw = Stopwatch.StartNew();
+            var countedWords = op4.Take(10).ToList();
+            sw.Stop();
+            streamWriter.WriteLine("Take 10: " + sw.Elapsed.TotalMilliseconds);
+            streamWriter.Close();
+            fs.Close();
+            return ExtractTopTen(countedWords);
+        }
+
+
+
+        
 
         /// <summary>
         /// Returns top 10 most frequently occuring words (naive definition of word) which occur in a string using dictionary to count the words and LINQ to sort them
@@ -41,7 +151,7 @@ namespace CountWordsInString
         {
             var wordDictionary = StringToWordDictionary(s1);
 
-            var countedWords = wordDictionary.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+            var countedWords = wordDictionary.OrderByDescending(x => x.Value).Select(x => x.Key).Take(10).ToList();
             return ExtractTopTen(countedWords);
         }
 
@@ -124,6 +234,16 @@ namespace CountWordsInString
             {
                 return countedWords.GetRange(0, 10);
             }
+        }
+
+        /// <summary>
+        /// Returns the top 10 values from an IEnumerable or a subset if there are fewer than 10 values
+        /// </summary>
+        /// <param name="countedWordsEnum">Sorted IEnumerable of words</param>
+        /// <returns>List containing up to 10 values from beginning of list</returns>
+        private static List<string> ExtractTopTen(IEnumerable<string> countedWordsEnum)
+        {
+            return ExtractTopTen(countedWordsEnum.ToList());
         }
 
         /// <summary>

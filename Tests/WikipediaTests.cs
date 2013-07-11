@@ -32,12 +32,12 @@ namespace Tests
             {
                 fs = new FileStream(fileName, FileMode.Truncate);
             }
-            catch (FileNotFoundException e)
+            catch (FileNotFoundException)
             {
                 fs = new FileStream(fileName, FileMode.Create);
             }
             var streamWriter = new StreamWriter(fs);
-            streamWriter.WriteLine("length, linq, dictionary, dictionaryNoLinq");
+            streamWriter.WriteLine("length, linq, linqLookup, dictionary, dictionaryNoLinq");
             //generate values for each
             for (int i = 0; i < NumValues; i++)
             {
@@ -61,8 +61,15 @@ namespace Tests
                 var dictNoLinqValue = sw.Elapsed.TotalMilliseconds;
                 sw.Reset();
 
+                sw = Stopwatch.StartNew();
+                result = CountWordsInString.CountWordsInString.CountWordsLinqLookup(valueToTest);
+                sw.Stop();
+                var dictLinqLookupValue = sw.Elapsed.TotalMilliseconds;
+                sw.Reset();
+
+
             
-                streamWriter.WriteLine(length + ", " + linqValue + ", " + dictValue + ", " + dictNoLinqValue);
+                streamWriter.WriteLine(length + ", " + linqValue + ", " + dictLinqLookupValue + ", " + dictValue + ", " + dictNoLinqValue);
             }
             streamWriter.Close();
             fs.Close();

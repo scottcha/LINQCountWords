@@ -31,36 +31,48 @@ namespace Tests
             Assert.AreEqual(results.Count, 10, "Expected 4 have: " + results.Count);
         }
 
-        [TestMethod]
-        public void BasicTestLinqTake()
-        {
-            var results = CountWordsInString.CountWordsInString.CountWordsLinqTake(_s1);
-            Assert.AreEqual(results.Count, 10, "Expected 4 have: " + results.Count);
-        }
+       
 
         [TestMethod]
         public void LongStringTestLinq()
         {
-            var results = CountWordsInString.CountWordsInString.CountWordsLinq(_longString);
-            
-            
+            var results = CountWordsInString.CountWordsInString.CountWordsLinq(_longString); 
             Assert.AreEqual(results.Count, 10, "Expected 10 have: " + results.Count);
         }
 
         [TestMethod]
-        public void LongStringTestLinqTake()
+        public void LongStringTestLinqForceEvalauate()
         {
-            var results = CountWordsInString.CountWordsInString.CountWordsLinqTake(_longString);
-
-
+            var results = CountWordsInString.CountWordsInString.CountWordsLinqForceEvaluate(_longString);
             Assert.AreEqual(results.Count, 10, "Expected 10 have: " + results.Count);
         }
 
+        [TestMethod]
+        public void BasicTestLinqLookup()
+        {
+            var results = CountWordsInString.CountWordsInString.CountWordsLinqLookup(_s1);
+            Assert.AreEqual(results.Count, 10, "Expected 4 have: " + results.Count);
+        }
+
+
+
+        [TestMethod]
+        public void LongStringTestLinqLookup()
+        {
+            var results = CountWordsInString.CountWordsInString.CountWordsLinqLookup(_longString);
+            Assert.AreEqual(results.Count, 10, "Expected 10 have: " + results.Count);
+        }
+        
+        [TestMethod]
+        public void LongStringTestLinqLookupForceEvalauate()
+        {
+            var results = CountWordsInString.CountWordsInString.CountWordsLinqLookupForceEvaluate(_longString);
+            Assert.AreEqual(results.Count, 10, "Expected 10 have: " + results.Count);
+        }
+        
         [TestMethod]
         public void BasicTestDictionary()
         {
-            
-
             var results = CountWordsInString.CountWordsInString.CountWordsDictionary(_s1);
             Assert.AreEqual(results.Count, 10, "Expected 4 have: " + results.Count);
         }
@@ -110,6 +122,13 @@ namespace Tests
             for (int i = 0; i < resultsDict.Count; i++)
             {
                 Assert.AreEqual(resultsDict[i], resultsLinq[i], "NoLinq: Items should be equal but are not for long string");
+            }
+
+            var resultsLinqLookup = CountWordsInString.CountWordsInString.CountWordsLinqLookup(_longString);
+            resultsLinq = CountWordsInString.CountWordsInString.CountWordsLinq(_longString);
+            for (int i = 0; i < resultsDict.Count; i++)
+            {
+                Assert.AreEqual(resultsLinqLookup[i], resultsLinq[i], "LinqLookup: Items should be equal but are not for long string");
             }
         }
 
